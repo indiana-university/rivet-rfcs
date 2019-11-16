@@ -19,7 +19,7 @@ While they were mostly rewritten in the [1.1.0 release](https://github.com/india
 - The ability to create multiple instances of any component e.g. `const myDropdownInstance = new Dropdown()`, allowing components to maintain their own state (if needed) and developers to have access to life-cycle methods for each instance, e.g. `myDropdownInstance.destroy()`, `myDropdownInstance.init()`
 - The ability to pass event-based callback functions as options to the instance:
     ```js
-    const myDropdownInstance = new Dropdown({
+    const myDropdownInstance = new Dropdown(element, {
       onOpen: function onOpenCallback() {
         // Do stuff when dropdown opens
       }
@@ -66,7 +66,7 @@ Now consider how we might write our new Rivet Vanilla Javascript components. We'
 ```js
 // rivet-dropdown.js
 export default class Dropdown {
-  constructor(options) {
+  constructor(element, options) {
     // Set up details
   }
 
@@ -92,8 +92,8 @@ Then later use the ES module bundle in another script.
 // my-script.js
 import Dropdown from 'rivet-components';
 
-const myDropdownInstance = new Dropdown({
-  element: document.getElementById('my-dropdown'),
+const dropdownElement = document.querySelector('[data-dropdown="my-dropdown"]');
+const myDropdownInstance = new Rivet.Dropdown(dropdownElement, {
   onOpen: function() {
     // Do something on open
   }
@@ -101,17 +101,16 @@ const myDropdownInstance = new Dropdown({
 ```
 
 ### Namespace for browser bundles
-We should aim to ship a regular browser [iife](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) that is bundled under a single namespace, e.g. `RivetComponents`. Doing so will make sure that we avoid any future conflicts with other browser globals we don't know about that might share variable names used for common UI components like `Dropdown`, `Modal`, etc.
+We should aim to ship a regular browser [iife](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) that is bundled under a single namespace, e.g. `Rivet`. Doing so will make sure that we avoid any future conflicts with other browser globals we don't know about that might share variable names used for common UI components like `Dropdown`, `Modal`, etc.
 
 ```html
 <!-- index.html -->
 <script src="./path/to/rivet-browser.js"></script>
 
 <script>
-  const myDropdownInstance = new RivetComponents.Dropdown({
-    element: document.getElementById('my-dropdown'),
-    // other options
-  });
+  const myDropdownInstance = new Rivet.Dropdown(
+    document.querySelector('[data-dropdown="my-dropdown"]')
+  );
 </script>
 ```
 
@@ -129,8 +128,8 @@ class App extends React.Component {
   }
   
   componentDidMount() {
-    const wrappedModal = new Modal({
-      element: this.modalRef.current
+    const wrappedModal = new Modal(this.modalRef.current, {
+      // other options
     });
   }
   
@@ -164,7 +163,7 @@ Instead of setting the initial state of our components via the HTML attributes t
 #### Potential progressive enhancement stumbling blocks
 There are a couple of potential pain points we could see implementing progressively-enhanced JavaScript components this way.
 
-1. A flash of unstyled content that becomes hidden after the JavaScript is loaded will be visible on slower connections.
+1. A flash of un-styled content that becomes hidden after the JavaScript is loaded will be visible on slower connections.
 1. There will be an increased amount of engineering effort to write components this way.
 
 ### Manual vs. automatic initialization
@@ -173,20 +172,41 @@ With the current version of Rivet all JavaScript widgets are automatically initi
 With the new Vanilla Components proposal each instance of a component would need to be created manually as mentioned in section above on constructors.
 
 ```js
-const myDropdownInstance = new Dropdown({
-  element: document.getElementById('my-dropdown')
+const dropdownElement =
+  document.querySelector('[data-dropdown="my-dropdown"]');
+
+const myDropdownInstance = new Rivet.Dropdown(dropdownElement, {
+  onOpen: function() {
+    // Do something on open
+  }
 });
 ```
 
 While this provides the most amount of flexibility across the various use cases laid out in the previous sections, there may be a lot of developers that prefer the "plug-and-play" functionality of all widgets being automatically initialized on page load.
 
 #### Auto-initialization functionality
-As a part of this change it would be worth exploring an _Auto-initialization_ functionality that would let developers opt into all components with the correct markup being auto-initialized on page load, similar to existing `rivet.js` functionality.
+As a part of this change we will need to explore an _Auto-initialization_ functionality that would let developers opt into all components with the correct markup being auto-initialized on page load, similar to existing `rivet.js` functionality.
 
 This functionality needs more research, but at first thought it may require some combination of the following.
 
 1. Shipping the pre-built/browser iife bundle with the auto-init behavior by default.
-1. Exposing an `autoInit` property on the namespaced iife bundle/object. For example setting `RivetComponents.autoInit = false` after the pre-built browser bundle is loaded would disable auto-initialization and require developers to manually create all instances of components.
+1. Exposing an `autoInit` property on the namespaced iife bundle/object. For example setting `Rivet.autoInit = false` after the pre-built browser bundle is loaded would disable auto-initialization and require developers to manually create all instances of components.
+
+Example:
+
+```html
+<!-- in your HTML file -->
+<script src="./path/to/rivet-browser.js"></script>
+
+<script>
+  Rivet.autoInit = false;
+  
+  // Now it's up to me to initialize all of my own components.
+  const signUpModal = new Rivet.Modal(
+    document.querySelector('data-modal="sign-up-modal"')
+  )
+</script>
+```
 
 ### Programmatic control
 For every Vanilla JavaScript component we should aim to provide developers with programmatic control of the component's interactive behaviors via methods on the component instance. Let's look at our Dropdown component again.
@@ -204,11 +224,12 @@ When we're thinking about a new Vanilla component model, we should always expose
 </div>
 
 <script>
-  const myDropdown = new RivetComponents.Dropdown({
-    element: document.getElementById('controlled-dropdown')
-  });
+  const dropdownEl =  document.getElementById('controlled-dropdown');
+  const myDropdown = new Rivet.Dropdown(dropdownEl);
   
-  const myDropdownToggle = document.getElementById('controlled-dropdown-toggle');
+  const myDropdownToggle =
+    document.getElementById('controlled-dropdown-toggle');
+    
   myDropdownToggle.addEventListener('click', () => {
     /**
      * Check if the menu is open based on some internal state of 
@@ -227,9 +248,9 @@ When we're thinking about a new Vanilla component model, we should always expose
 Another good example of the importance of programmatic control would be modals. Oftentimes a single modal might need to be triggered by multiple events and/or conditions. For example, if a user's session has expired and you would like to show a confirmation modal. There would be no need to have any controls available in the UI that would open the modal, so it should be able to be fully controlled via another script.
 
 ```js
-const logoutModalInstance = new RivetComponents.Modal({
-  element: document.getElementById('logout-modal');
-});
+const logoutModalInstance = new Rivet.Modal(
+  document.getElementById('logout-modal')
+);
 
 // Somewhere else in the script.
 function logOutUser(user) {
@@ -249,10 +270,10 @@ By default we should offer a convention that allows developers to automatically 
 ```html
 <!--
   Using a [data-dropdown-toggle] attribute ties the open functionality
-  to a modal element with the corresponding [id] attribute.
+  to a dropdown element with the corresponding [data-dropdown] attribute.
 -->
 <button data-dropdown-toggle="auto-dropdown">Dropdown toggle</button>
-<div role="menu" id="auto-dropdown">
+<div role="menu" data-dropdown="auto-dropdown">
   <button>Menu item one</button>
   <button>Menu item two</button>
   <button>Menu item three</button>
@@ -260,10 +281,32 @@ By default we should offer a convention that allows developers to automatically 
 
 <script>
   // Assuming the markup above, this dropdown would automatically "just work".
-  const myDropdown = new RivetComponents.Dropdown({
-    element: document.getElementById('auto-dropdown')
-  });
+  const myDropdown = new Rivet.Dropdown(
+    document.getElementById('auto-dropdown')
+  );
 </script>
+```
+
+### Custom events
+This proposal talks a bit about event-driven callbacks like `onOpen`, `onClose`, etc. It seems like there is some value in being able to listen for custom events in your own scripts and react accordingly. Especially the ability to use `preventDefault()` to catch events and cancel them based on some outside application logic.
+
+```js
+import { Modal } from 'rivet-components';
+
+const myModalInstance = new Modal(element, {
+  // options
+});
+
+function modalOpenHandler(event) {
+  if (!someLocalAppCondition) {
+    myApp.respondToModalOpening();
+  } else {
+    // If not, catch the event and bail out.
+    event.preventDefault();
+  }
+}
+
+document.addEventListener('rvt:modal-open', modalOpenHandler);
 ```
 
 ## How we teach this
@@ -287,25 +330,6 @@ The only other real alternative is to leave things the way they are and do our b
 ## Unresolved questions
 There are a few things that need some discussion and refinement.
 
-### Custom events
-This proposal talks a bit about event-driven callbacks like `onOpen`, `onClose`, etc. Does it still make sense to emit `CustomEvent`s from our Vanilla components? It seems like there is some value in being able to listen for custom events in your own scripts and react accordingly.
-
-```js
-import { Modal } from 'rivet-components';
-
-const myModalInstance = new Modal({
-  // options
-});
-
-function modalOpenHandler(event) {
-  if (event.target == myModalInstance) {
-    myApp.respondToModalOpening();
-  }
-}
-
-document.addEventListener('rivet-modal-open', modalOpenHandler);
-```
-
 ### Base component class
 If we go the route of using ES `class`es for our Vanilla components, would it make sense to try and identify some sort of base class we could abstract common functionality into?
 
@@ -327,13 +351,17 @@ export default class RivetBaseComponent {
 
 ```js
 // rivet-modal.js
-import RivetBaseComponent from './rivet-base-component.js';
+import RivetBaseComponent from './rivet-base-component';
 
 class Modal extends RivetBaseComponent {
   constructor() {
     super();
   }
   
-  // implementation
+  someCommonMethod() {
+    super.someCommonMethod(); // Call the the parent method
+    // And then do other stuff
+  }
+  // More implementation
 }
 ```
