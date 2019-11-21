@@ -1,5 +1,5 @@
 # Vanilla JavaScript components
-- Start Date: 2019-11-18
+- Start Date: 2019-11-21
 - RFC PR: (Leave empty—will fill in once PR exists)
 - Rivet Issue or PR: (Leave this empty—will fill in with implementation PR if accepted)
 
