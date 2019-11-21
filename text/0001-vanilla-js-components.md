@@ -282,7 +282,7 @@ By default we should offer a convention that allows developers to automatically 
 <script>
   // Assuming the markup above, this dropdown would automatically "just work".
   const myDropdown = new Rivet.Dropdown(
-    document.getElementById('auto-dropdown')
+    document.querySelector('[data-dropdown="auto-dropdown"]')
   );
 </script>
 ```
@@ -293,8 +293,8 @@ This proposal talks a bit about event-driven callbacks like `onOpen`, `onClose`,
 ```js
 import { Modal } from 'rivet-components';
 
-const myModalInstance = new Modal(element, {
-  // options
+const myModalInstance = new Modal(
+  document.querySelector('[data-modal="my-modal"]')
 });
 
 function modalOpenHandler(event) {
@@ -306,7 +306,7 @@ function modalOpenHandler(event) {
   }
 }
 
-document.addEventListener('rvt:modal-open', modalOpenHandler);
+document.addEventListener('rvt:modalOpen', modalOpenHandler);
 ```
 
 ## How we teach this
@@ -328,7 +328,7 @@ Another potential downside would be the increased complexity in how the JavaScri
 The only other real alternative is to leave things the way they are and do our best to improve the existing Rivet JavaScript components. After two-plus years of use in a fair number of production apps and sites, the need to evolve the way we approach Rivet's JavaScript offering seems apparent. At some point we will have to introduce breaking changes. We may as well make these improvements when we do.
 
 ## Unresolved questions
-There are a few things that need some discussion and refinement.
+There are a few things that need some discussion and refinement, e.g. digging into the _auto_ initialization functionality.
 
 ### Base component class
 If we go the route of using ES `class`es for our Vanilla components, would it make sense to try and identify some sort of base class we could abstract common functionality into?
