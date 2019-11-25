@@ -1,6 +1,6 @@
 # Rivet container and grid simplification
 - Start Date: (Fill me in with today's date, 2019-11-26)
-- RFC PR: (Leave empty—will fill in once PR exists)
+- RFC PR: [#2](https://github.com/indiana-university/rivet-rfcs/pull/2)
 - Rivet Issue or PR: (Leave this empty—will fill in with implementation PR if accepted)
 
 ## Summary
