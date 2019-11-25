@@ -7,7 +7,7 @@
 This RFC proposes a few updates and additions to the Rivet container and grid system that aim to make it a bit easier to use and understand and make it more flexible.
 
 ## Motivation
-After 2-plus years and some valuable feedback from developers, it's seems clear that we could reduce the amount of CSS classes it takes to create a container for layout. I would like to see a reduction in the amount of CSS classes it takes to create a layout container with a max-width that is centered once the viewport is larger than that max-width. 
+After 2-plus years and some valuable feedback from developers, it's seems clear that we could reduce the amount of CSS classes it takes to create a container for layout. More specifically, a reduction in the amount of CSS classes it takes to create a layout container with a max-width that is centered once the viewport is larger than that max-width. 
 
 In addition to reducing the amount of CSS classes for containers the class names for the grid could use an naming update to help make it easier to understand how they work. E.g.`rvt-columns-3` or `rvt-cols-3` is more descriptive of what the CSS class does than `rvt-grid__item-3`. We'll dig deeper into this in the _Detailed design_ section that follows.
 
@@ -94,7 +94,7 @@ Given those proposed changes, and new grid might be written something like the f
 ```
 
 ### New feature: Gutter variants
-As a new feature proposal, it would be useful for developers to be able to easily modify the size of grid gutters based on the design for their site, or application. For example, a marketing website with expressive typography and generous use of white space, might benefit from more generous gutters.
+As a new feature proposal, it would be useful for developers to be able to easily modify the size of grid gutters based on the design for their site, or application. For example, a marketing website with expressive typography and generous use of white space, might benefit from more larger gutters.
 
 To do this we could create a set of modifier classes for the new `rvt-row` element that set's the child `-cols-*` elements gutters based which variant the developer chooses.
 
