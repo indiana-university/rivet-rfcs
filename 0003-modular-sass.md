@@ -148,6 +148,6 @@ It will be important to develop a shared language for the way we talk about this
 The main drawback is that this is a breaking change for those who have taken advantage of using the Rivet 1.x.x Sass source in their projects.
 
 ## Unresolved questions
-There may be some dependency on another potential new concept the Rivet team is planning to implement called _design tokens_.
+There may be some dependency on the potential _design tokens_ concept the Rivet team is planning to implement.
 
 If a design tokens strategy is implemented as laid out [in this issue](https://github.com/indiana-university/rivet-source/issues/214), there would need to be some coordination in how the main `rivet-source` codebase consumes Sass variable files generated from design tokens.
