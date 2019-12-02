@@ -29,7 +29,7 @@ To create a predictable experience for developers wanting to import we'll need t
 #### Standard component directory structure
 The following is a proposed standard directory structure using Rivet's modal component as an example.
 
-```shell
+```
 /src/sass/modal/
   |-- _index.scss
   |-- _modal-header.scss
@@ -56,7 +56,7 @@ The core should contain all the global variables, mixins, and functions all othe
 
 Here's an example of how the core could be structured.
 
-```shell
+```
 /src/sass/core
   |-- _index.scss
   |-- /variables
@@ -110,7 +110,7 @@ h6 {
 
 This types of "global" generically applied CSS would need to be contained in it's own set of Sass partials/imports. I would be fairly straightforward to keep those in their own directory following the standard file structure outlined in the previous section.
 
-```shell
+```
 /src/sass/base/
   |-- _index.scss
   |-- _base.scss
